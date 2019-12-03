@@ -21,8 +21,7 @@ def main(self):
         sys.exit("check your dataset name : ['20ng', 'R8', 'R52', 'ohsumed', 'mr']")
 
     # Set random seed
-    seed = random.randint(1, 200)
-#     seed = 2019
+    seed = random.randint(1, 2019)
     np.random.seed(seed)
     tf.set_random_seed(seed)
     

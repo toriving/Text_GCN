@@ -49,6 +49,7 @@ class GCN:
 
         return outputs
     
+    
     def _sparse_dropout(self, x, keep_prob, noise_shape):
         """Dropout for sparse tensors."""
         random_tensor = keep_prob
@@ -60,21 +61,16 @@ class GCN:
     def _masked_softmax_cross_entropy(self, preds, labels, mask):
         """Softmax cross-entropy loss with masking."""
         loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=preds, labels=labels)
-        mask = tf.cast(mask, dtype=tf.float32)
-        mask /= tf.reduce_mean(mask)
-        loss *= mask
+        loss = tf.boolean_mask(loss, mask)
         return tf.reduce_mean(loss)
 
 
     def _masked_accuracy(self, preds, labels, mask):
         """Accuracy with masking."""
-        correct_prediction = tf.equal(tf.argmax(preds, 1), tf.argmax(labels, 1))
-
-        accuracy_all = tf.cast(correct_prediction, tf.float32)
-        mask = tf.cast(mask, dtype=tf.float32)
-        mask /= tf.reduce_mean(mask)
-        accuracy_all *= mask
-        return tf.reduce_mean(accuracy_all)
+        prediction = tf.equal(tf.argmax(preds, 1), tf.argmax(labels, 1))
+        accuracy = tf.cast(prediction, tf.float32)
+        accuracy = tf.boolean_mask(accuracy, mask)
+        return tf.reduce_mean(accuracy)
 
     def _build_weight(self, shape, scope="weight"):
          with tf.variable_scope(scope):
@@ -87,7 +83,7 @@ class GCN:
         self.support = tf.sparse_placeholder(tf.float32)
         self.features = tf.sparse_placeholder(tf.float32, shape=tf.constant(self.parameters[-1]['feature_shape'], dtype=tf.int64))
         self.labels = tf.placeholder(tf.float32, shape=(None, self.parameters[-1]['label_shape']))
-        self.labels_mask = tf.placeholder(tf.int32)
+        self.labels_mask = tf.placeholder(tf.int32, shape=[None])
         self.dropout = tf.placeholder_with_default(0., shape=())
         self.num_features_nonzero = tf.placeholder(tf.int32)
 
