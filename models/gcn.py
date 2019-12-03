@@ -1,8 +1,8 @@
 import tensorflow as tf
 from configs import FLAGS
-# support = A (Adjacency matrix)
-# input = X (feature matrix)
-# weight matrix = W
+# support = A (Adjacency matrix PPI, tf-idf)
+# input = X (Onehot encoding docu and words)
+# weight matrix = W 
     
 class GCN:
     def __init__(self, parameters):
