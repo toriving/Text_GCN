@@ -7,7 +7,8 @@ Liang Yao, Chengsheng Mao, Yuan Luo. "Graph Convolutional Networks for Text Clas
 
 ## Requirements
 
-python 3.6
+python 3.6  
+  
 Tensorflow 1.14
 
 
