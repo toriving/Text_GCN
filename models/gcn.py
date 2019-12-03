@@ -1,9 +1,10 @@
 import tensorflow as tf
 from configs import FLAGS
-# support = A (Adjacency matrix PPI, tf-idf)
-# input = X (Onehot encoding docu and words)
+
+# support = A (Adjacency matrix PPI, tf-idf) 
+# input = X (Onehot encoding docu and words) (feature)
 # weight matrix = W 
-    
+
 class GCN:
     def __init__(self, parameters):
         self.parameters = parameters
@@ -14,7 +15,7 @@ class GCN:
         
     def build(self, parameters, scope="GCN"):
         with tf.variable_scope(scope):       
-            layer1 = self._GraphConvolutionLayer(self.features, sparse_input=True, featureless=True)
+            layer1 = self._GraphConvolutionLayer(self.features, sparse_input=True)
             layer2 = self._GraphConvolutionLayer(layer1, final=True)
             
             self.outputs = layer2
@@ -23,7 +24,7 @@ class GCN:
             self.loss = self._masked_softmax_cross_entropy(self.outputs, self.labels, self.labels_mask)
 
     
-    def _GraphConvolutionLayer(self, inputs, final=False, sparse_input=False, featureless=False):
+    def _GraphConvolutionLayer(self, inputs, final=False, sparse_input=False):
         if sparse_input:
             inputs = self._sparse_dropout(inputs, 1- self.dropout, self.num_features_nonzero)
         else:
@@ -34,13 +35,11 @@ class GCN:
         else:
             W, b = self._build_weight([self.parameters[0]['input_dim'], self.parameters[0]['output_dim']])
             
-        if featureless:
-            pre_sup = W
+
+        if sparse_input:
+            pre_sup = tf.sparse_tensor_dense_matmul(inputs, W)
         else:
-            if sparse_input:
-                pre_sup = tf.sparse_tensor_dense_matmul(inputs, W)
-            else:
-                pre_sup = tf.matmul(inputs, W)
+            pre_sup = tf.matmul(inputs, W)
  
         outputs = tf.sparse_tensor_dense_matmul(self.support, pre_sup) + b
             
