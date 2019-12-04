@@ -220,63 +220,6 @@ def preprocess_adj(adj):
     adj_normalized = normalize_adj(adj + sp.eye(adj.shape[0]))
     return sparse_to_tuple(adj_normalized)
 
-
-def construct_feed_dict(features, support, labels, labels_mask, placeholders):
-    """Construct feed dictionary."""
-    feed_dict = dict()
-    feed_dict.update({placeholders['labels']: labels})
-    feed_dict.update({placeholders['labels_mask']: labels_mask})
-    feed_dict.update({placeholders['features']: features})
-    feed_dict.update({placeholders['support'][i]: support[i]
-                      for i in range(len(support))})
-    feed_dict.update({placeholders['num_features_nonzero']: features[1].shape})
-    return feed_dict
-
-
-def chebyshev_polynomials(adj, k):
-    """Calculate Chebyshev polynomials up to order k. Return a list of sparse matrices (tuple representation)."""
-    print("Calculating Chebyshev polynomials up to order {}...".format(k))
-
-    adj_normalized = normalize_adj(adj)
-    laplacian = sp.eye(adj.shape[0]) - adj_normalized
-    largest_eigval, _ = eigsh(laplacian, 1, which='LM')
-    scaled_laplacian = (
-        2. / largest_eigval[0]) * laplacian - sp.eye(adj.shape[0])
-
-    t_k = list()
-    t_k.append(sp.eye(adj.shape[0]))
-    t_k.append(scaled_laplacian)
-
-    def chebyshev_recurrence(t_k_minus_one, t_k_minus_two, scaled_lap):
-        s_lap = sp.csr_matrix(scaled_lap, copy=True)
-        return 2 * s_lap.dot(t_k_minus_one) - t_k_minus_two
-
-    for i in range(2, k+1):
-        t_k.append(chebyshev_recurrence(t_k[-1], t_k[-2], scaled_laplacian))
-
-    return sparse_to_tuple(t_k)
-
-
-def loadWord2Vec(filename):
-    """Read Word Vectors"""
-    vocab = []
-    embd = []
-    word_vector_map = {}
-    file = open(filename, 'r')
-    for line in file.readlines():
-        row = line.strip().split(' ')
-        if(len(row) > 2):
-            vocab.append(row[0])
-            vector = row[1:]
-            length = len(vector)
-            for i in range(length):
-                vector[i] = float(vector[i])
-            embd.append(vector)
-            word_vector_map[row[0]] = vector
-    print('Loaded Word Vectors!')
-    file.close()
-    return vocab, embd, word_vector_map
-
 def clean_str(string):
     """
     Tokenization/string cleaning for all datasets except for SST.

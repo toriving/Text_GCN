@@ -41,7 +41,7 @@ def main(self):
     else:
         raise ValueError('Invalid argument for model: ' + str(FLAGS.model))
     
-    
+
     model = GCN(PARAMS)
     sess_config = tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))
     

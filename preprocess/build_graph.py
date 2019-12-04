@@ -26,12 +26,6 @@ dataset = sys.argv[1]
 if dataset not in datasets:
 	sys.exit("wrong dataset name")
 
-# Read Word Vectors
-# word_vector_file = 'data/glove.6B/glove.6B.300d.txt'
-# word_vector_file = 'data/corpus/' + dataset + '_word_vectors.txt'
-#_, embd, word_vector_map = loadWord2Vec(word_vector_file)
-# word_embeddings_dim = len(embd[0])
-
 word_embeddings_dim = FLAGS.embedding_size
 word_vector_map = {}
 
